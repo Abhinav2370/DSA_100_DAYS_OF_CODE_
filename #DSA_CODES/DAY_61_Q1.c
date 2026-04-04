@@ -1,45 +1,86 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+// Node structure
+struct Node {
+    int vertex;
+    struct Node* next;
+};
+
+// Graph structure
+struct Graph {
+    int numVertices;
+    struct Node** adjLists;
+};
+
+// Create a new node
+struct Node* createNode(int v) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->vertex = v;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Create graph
+struct Graph* createGraph(int vertices) {
+    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
+    graph->numVertices = vertices;
+
+    graph->adjLists = (struct Node**)malloc(vertices * sizeof(struct Node*));
+
+    for (int i = 0; i < vertices; i++)
+        graph->adjLists[i] = NULL;
+
+    return graph;
+}
+
+// Add edge (undirected)
+void addEdge(struct Graph* graph, int src, int dest) {
+    // Add dest to src list
+    struct Node* newNode = createNode(dest);
+    newNode->next = graph->adjLists[src];
+    graph->adjLists[src] = newNode;
+
+    // Add src to dest list
+    newNode = createNode(src);
+    newNode->next = graph->adjLists[dest];
+    graph->adjLists[dest] = newNode;
+}
+
+// Print graph
+void printGraph(struct Graph* graph) {
+    for (int i = 0; i < graph->numVertices; i++) {
+        struct Node* temp = graph->adjLists[i];
+        printf("Vertex %d: ", i);
+
+        while (temp) {
+            printf("%d -> ", temp->vertex);
+            temp = temp->next;
+        }
+        printf("NULL\n");
+    }
+}
 
 int main() {
     int n, m;
-    
-    // Input number of vertices and edges
+
     printf("Enter number of vertices: ");
     scanf("%d", &n);
-    
+
     printf("Enter number of edges: ");
     scanf("%d", &m);
-    
-    int adj[n][n];
-    
-    // Initialize matrix with 0
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < n; j++) {
-            adj[i][j] = 0;
-        }
-    }
-    
-    int u, v;
-    
-    // Input edges
+
+    struct Graph* graph = createGraph(n);
+
     printf("Enter edges (u v):\n");
-    for(int i = 0; i < m; i++) {
+    for (int i = 0; i < m; i++) {
+        int u, v;
         scanf("%d %d", &u, &v);
-        
-        adj[u][v] = 1;   // directed edge
-        
-        // Uncomment below line for undirected graph
-        // adj[v][u] = 1;
+        addEdge(graph, u, v);
     }
-    
-    // Print adjacency matrix
-    printf("\nAdjacency Matrix:\n");
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < n; j++) {
-            printf("%d ", adj[i][j]);
-        }
-        printf("\n");
-    }
-    
+
+    printf("\nAdjacency List:\n");
+    printGraph(graph);
+
     return 0;
 }
